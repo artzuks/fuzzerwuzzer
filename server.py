@@ -5,7 +5,7 @@ import sys
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('localhost', 3000)
+server_address = ('0.0.0.0', 3002)
 print('starting up on {} port {}'.format(*server_address))
 sock.bind(server_address)
 
@@ -21,7 +21,7 @@ while True:
 
         # Receive the data in small chunks and retransmit it
         while True:
-            data = connection.recv(16)
+            data = connection.recv(1024)
             print('received {!r}'.format(data))
             if data:
                 print('sending data back to the client')
