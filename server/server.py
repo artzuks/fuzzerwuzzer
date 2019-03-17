@@ -39,9 +39,9 @@ def checkPayloadForPattern(b,matchPattern):
 patternToMatch = readMatchPatternFromFile('./match_pattern')
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+#sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # Bind the socket to the port
-server_address = ('0.0.0.0', 3001)
+server_address = ('0.0.0.0', 3003)
 print('starting up on {} port {}'.format(*server_address))
 sock.bind(server_address)
 
@@ -81,9 +81,9 @@ while True:
                 totalPayloads += 1
                 if checkPayloadForPattern(bytes(buff[0:numRecv]),patternToMatch):
                     matchedPayloads += 1
-                    connection.sendall(bytearray.fromhex("00"))
+                    connection.send(bytearray.fromhex("00"))
                 else:
-                    connection.sendall(bytearray.fromhex("ff"))
+                    connection.send(bytearray.fromhex("ff"))
             else:
                 print('no data from', client_address)
                 break
