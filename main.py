@@ -2,6 +2,7 @@ from scapy.layers.inet import * # done purely for IDE automplete to work properl
 from scapy.sendrecv import *
 from scapy.all import *
 import argparse
+import secrets
 
 parser = argparse.ArgumentParser(
     prog="FuzzerWuzzer",
@@ -39,7 +40,19 @@ ipGroup.add_argument("--flen", help="Will fuzz the Length field in IP header",
                     action="store_true")
 
 appGroup = parser.add_argument_group('Application','Arguments for fuzzing Application layer')
+subparsers = parser.add_subparsers(dest="command")
 
+parser_app_rand_fixed = subparsers.add_parser('app-rand-fixed', help='Used to do random fuzz testing of application of fixed packet size')
+parser_app_rand_fixed.add_argument("numTests", help="Number of tests to run",type=int)
+parser_app_rand_fixed.add_argument("payloadSize", help="The size of the fixed payload to include in each packet", type=int)
+
+parser_app_rand_range = subparsers.add_parser('app-rand-range', help='Used to do random fuzz testing of application of variable packet size')
+parser_app_rand_range.add_argument("numTests", help="Number of tests to run",type=int)
+parser_app_rand_range.add_argument("payloadMinSize", help="The min size of the fixed payload to include in each packet",type=int)
+parser_app_rand_range.add_argument("payloadMaxSize", help="The max size of the fixed payload to include in each packet",type=int)
+
+parser_app_file = subparsers.add_parser('app-file', help='Used to do random fuzz testing of application of fixed packet size')
+parser_app_file.add_argument("path", help="Path to the file which contains tests to run. Each line should contain the hex string representing bytes to send in a packet")
 
 args = parser.parse_args()
 
@@ -58,13 +71,16 @@ class IPFuzz:
                   , seq=self.ack, ack=self.seq)
         print ("Sending ACK")
         send(self.ip / ACK)
-        self._sr1("Hi")
 
     def fuzzTTL(self):
         for i in range(256):
             #self.ip.ttl = i
             print("Sending ttl=",i)
             pkt = self._sr1('hi' + str(i))
+
+    def sendPayloads(self,payloads):
+        for payload in payloads:
+            self._sr1(payload)
 
 
     def _sr1(self,msg):
@@ -87,15 +103,28 @@ class IPFuzz:
         print ("Sending FINACK")
         send(self.ip/LASTACK)
 
+def generateRandomPayloads(minLength,maxLength,numOfPayloads):
+    ret = []
+    for i in range(numOfPayloads):
+        size = secrets.choice(range(minLength,maxLength+1))
+        ret.append(hex_bytes(secrets.token_hex(size)))
+    return ret
 
 if __name__ == '__main__':
     f = open(args.defaultPayloadPath, "r")
     defaultPayload = f.read()
-    ipFuzz = IPFuzz(destinationIP=args.targetIP,
-                    destinationPort=args.targetPort,
-                    defaultMessage=defaultPayload,
-                    sourceIP=args.sourceIP)
-    #f = open("demofile.txt", "r")
-    #print(f.read())
-    #ipFuzz.fuzzTTL()
-    ipFuzz.closeConnection()
+    try:
+        ipFuzz = IPFuzz(destinationIP=args.targetIP,
+                        destinationPort=args.targetPort,
+                        defaultMessage=defaultPayload,
+                        sourceIP=args.sourceIP)
+
+        if args.command == 'app-rand-fixed':
+            payloads = generateRandomPayloads(args.payloadSize, args.payloadSize, args.numTests)
+            ipFuzz.sendPayloads(payloads)
+
+        elif args.command == 'app-rand-range':
+            payloads = generateRandomPayloads(args.payloadMinSize, args.payloadMaxSize, args.numTests)
+            ipFuzz.sendPayloads(payloads)
+    finally:
+        ipFuzz.closeConnection()
