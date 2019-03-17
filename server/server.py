@@ -1,9 +1,8 @@
 import socket
 import sys
 import signal
+import binascii
 
-
-matchPattern = bytearray()
 MAX_PAYLOAD_LIMIT = 1024
 matchedPayloads = 0
 totalPayloads = 0
@@ -18,16 +17,17 @@ def readMatchPatternFromFile(path):
     """
     with open(path,'r') as fp:
         matchPattern = bytearray.fromhex(fp.read().strip())
+        print("Pattern to match is {} and {} bytes long".format(binascii.hexlify(matchPattern),len(matchPattern)))
         if len(matchPattern) > MAX_PAYLOAD_LIMIT:
             raise Exception('Pattern for matching exceeds {}'.format(MAX_PAYLOAD_LIMIT))
         elif len(matchPattern) == 0:
             raise Exception('Pattern for matching cannot be 0 in length')
+        return matchPattern
 
-
-def checkPayloadForPattern(b):
+def checkPayloadForPattern(b,matchPattern):
     if len(b) < len(matchPattern):
         return False
-
+  
     for i in range(len(matchPattern)):
         if matchPattern[i] != b[i]:
             return False
@@ -36,13 +36,12 @@ def checkPayloadForPattern(b):
      
 
 
-
-readMatchPatternFromFile('./match_pattern')
+patternToMatch = readMatchPatternFromFile('./match_pattern')
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # Bind the socket to the port
-server_address = ('0.0.0.0', 3000)
+server_address = ('0.0.0.0', 3001)
 print('starting up on {} port {}'.format(*server_address))
 sock.bind(server_address)
 
@@ -80,7 +79,7 @@ while True:
             if numRecv:
                 print(bytes(buff[0:numRecv]))
                 totalPayloads += 1
-                if checkPayloadForPattern(buff):
+                if checkPayloadForPattern(bytes(buff[0:numRecv]),patternToMatch):
                     matchedPayloads += 1
                     connection.sendall(bytearray.fromhex("00"))
                 else:
