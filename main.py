@@ -47,6 +47,11 @@ def sendAppPayloads(fuzz, payloads):
 
     print("Application testing done. Valid responses={} ; Invalid responses={} ; Unknown responses={}".format(valid,invalid,other))
 
+
+def processIPFuzz(fuzz,args):
+    if args.fttl:
+        fuzz.fuzzTTL()
+
 if __name__ == '__main__':
     args = getParser().parse_args()
 
@@ -71,5 +76,7 @@ if __name__ == '__main__':
             payloads = readPayloadsFromFile(args.path)
             savePayloadsToFile(payloads)
             sendAppPayloads(fuzz,payloads)
+        elif args.command == 'ip':
+            processIPFuzz(fuzz,args)
     finally:
         fuzz.closeConnection()

@@ -27,10 +27,17 @@ class Fuzz:
         self.closed = False
 
     def fuzzTTL(self):
-        for i in range(256):
-            #self.ip.ttl = i
+        self.reInit()
+        originalTTL = self.ip.ttl
+        for i in reversed(range(10)):
+            self.ip.ttl = i
             print("Sending ttl=",i)
-            pkt = self._sr1('hi' + str(i))
+            ans = self._sr1('hi' + str(i))
+            if not ans.res:
+                break
+        self.ip.ttl = originalTTL
+        self.closeConnection()
+
 
     def sendPayloads(self,payloads):
         self.reInit()
