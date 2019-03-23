@@ -22,6 +22,10 @@ iptables -L
 ```
 
 ## Fuzzing IP Layer
+### TTL
+The TTL field in practice is used as a counter to prevent packets from getting stuck in a network.
+The fuzzing for the ttl field starts at the highest value of 255 and decrements until a request is sent out but a response is not returned.
+This signifies that ttl is decremented to 0 prior to arriving at the server. 
 ## Fuzzing Application Layer
 ### Default Tests
 ### Tests from a File
