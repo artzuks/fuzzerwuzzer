@@ -29,7 +29,7 @@ class Fuzz:
     def fuzzTTL(self):
         self.reInit()
         originalTTL = self.ip.ttl
-        for i in reversed(range(10)):
+        for i in reversed(range(255)):
             self.ip.ttl = i
             print("Sending ttl=",i)
             ans = self._sr1('hi' + str(i))
