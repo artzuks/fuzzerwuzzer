@@ -97,6 +97,8 @@ class IPFuzz:
         self.lengthValues = generateRandomInts(65535,256)
         self.flagsValues = range(8)
         self.idValues = generateRandomInts(65535,256) # scapy only supports that max
+        self.fragValues = generateRandomInts(8192,256)
+        self.protoValues = range(256)
 
 
     def trySyn(self):
@@ -110,14 +112,6 @@ class IPFuzz:
             print("Sending version=", i)
             self.trySyn()
         self.ip.version = 4
-
-    def fuzzTTL(self):
-        originalTTL = self.ip.ttl
-        for i in self.ttlValues:
-            self.ip.ttl = i
-            print("Sending ttl=",i)
-            self.trySyn()
-        self.ip.ttl = originalTTL
 
     def fuzzIHL(self):
         originalIHL = self.ip.ihl
@@ -166,3 +160,27 @@ class IPFuzz:
             print("Sending flag=", i)
             self.trySyn()
         self.ip.flags = originalflag
+
+    def fuzzFrag(self):
+        originalfrag = self.ip.frag
+        for i in self.fragValues:
+            self.ip.frag = i
+            print("Sending frag=", i)
+            self.trySyn()
+        self.ip.frag = originalfrag
+
+    def fuzzTTL(self):
+        originalTTL = self.ip.ttl
+        for i in self.ttlValues:
+            self.ip.ttl = i
+            print("Sending ttl=",i)
+            self.trySyn()
+        self.ip.ttl = originalTTL
+
+    def fuzzProto(self):
+        originalproto = self.ip.proto
+        for i in self.protoValues:
+            self.ip.proto = i
+            print("Sending proto=", i)
+            self.trySyn()
+        self.ip.proto = originalproto

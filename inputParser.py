@@ -41,6 +41,8 @@ def getParser():
                           help='Path to the payload that will be sent to the server with each request',
                           default='./IP Settings/default_payload')
 
+    parser_app_ip.add_argument("--fall", help="Will fuzz the all fields in IP header",
+                               action="store_true")
     parser_app_ip.add_argument("--fversion", help="Will fuzz the version field in IP header",
                          action="store_true")
     parser_app_ip.add_argument("--fihl", help="Will fuzz the IHL field in IP header",
@@ -55,10 +57,12 @@ def getParser():
                                action="store_true")
     parser_app_ip.add_argument("--fflags", help="Will fuzz the Flags flags in IP header",
                          action="store_true")
-    parser_app_ip.add_argument("--ffrags", help="Will fuzz the Frags field in IP header",
+    parser_app_ip.add_argument("--ffrag", help="Will fuzz the Fragment offset field in IP header",
                          action="store_true")
     parser_app_ip.add_argument("--fttl", help="Will fuzz the TTL field in IP header",
                          action="store_true")
+    parser_app_ip.add_argument("--fproto", help="Will fuzz the protocol field in IP header",
+                               action="store_true")
 
 
     return parser

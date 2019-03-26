@@ -46,22 +46,26 @@ def sendAppPayloads(fuzz, payloads):
 
 def processIPFuzz(fuzz,args):
 
-    if args.fttl:
+    if args.fttl or args.fall:
         fuzz.fuzzTTL()
-    if args.fversion:
+    if args.fversion or args.fall:
         fuzz.fuzzVersion()
-    if args.fihl:
+    if args.fihl or args.fall:
         fuzz.fuzzIHL()
-    if args.fdscp:
+    if args.fdscp or args.fall:
         fuzz.fuzzDSCP()
-    if args.fecn:
+    if args.fecn or args.fall:
         fuzz.fuzzECN()
-    if args.flen:
+    if args.flen or args.fall:
         fuzz.fuzzLength()
-    if args.fid:
+    if args.fid or args.fall:
         fuzz.fuzzID()
-    if args.fflags:
+    if args.fflags or args.fall:
         fuzz.fuzzFlags()
+    if args.ffrag or args.fall:
+        fuzz.fuzzFrag()
+    if args.fproto or args.fall:
+        fuzz.fuzzProto()
 
 
 if __name__ == '__main__':
