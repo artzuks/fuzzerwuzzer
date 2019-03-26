@@ -1,17 +1,13 @@
 from inputParser import getParser
-from fuzzerClient import Fuzz
+from fuzzerClient import Fuzz, IPFuzz
+from utils import generateRandomPayloads
 from scapy.utils import hex_bytes
-import secrets
+
 import time
 import os
 
 
-def generateRandomPayloads(minLength,maxLength,numOfPayloads):
-    ret = []
-    for i in range(numOfPayloads):
-        size = secrets.choice(range(minLength,maxLength+1))
-        ret.append(hex_bytes(secrets.token_hex(size)))
-    return ret
+
 
 def readPayloadsFromFile(path):
     ret = []
@@ -49,34 +45,56 @@ def sendAppPayloads(fuzz, payloads):
 
 
 def processIPFuzz(fuzz,args):
+
     if args.fttl:
         fuzz.fuzzTTL()
+    if args.fversion:
+        fuzz.fuzzVersion()
+    if args.fihl:
+        fuzz.fuzzIHL()
+    if args.fdscp:
+        fuzz.fuzzDSCP()
+    if args.fecn:
+        fuzz.fuzzECN()
+    if args.flen:
+        fuzz.fuzzLength()
+    if args.fid:
+        fuzz.fuzzID()
+    if args.fflags:
+        fuzz.fuzzFlags()
+
 
 if __name__ == '__main__':
     args = getParser().parse_args()
 
     with open(args.defaultPayloadPath, "r") as f:
         defaultPayload = f.read()
-    try:
-        fuzz = Fuzz(destinationIP=args.targetIP,
+
+    if args.command == 'ip':
+        ipfuzz = IPFuzz(destinationIP=args.targetIP,
                         destinationPort=args.targetPort,
                         defaultMessage=defaultPayload,
                         sourceIP=args.sourceIP)
+        processIPFuzz(ipfuzz, args)
+    else:
+        try:
+            fuzz = Fuzz(destinationIP=args.targetIP,
+                            destinationPort=args.targetPort,
+                            defaultMessage=defaultPayload,
+                            sourceIP=args.sourceIP)
+            if args.command == 'app-rand-fixed':
+                payloads = generateRandomPayloads(args.payloadSize, args.payloadSize, args.numTests)
+                savePayloadsToFile(payloads)
+                fuzz.sendPayloads(payloads)
 
-        if args.command == 'app-rand-fixed':
-            payloads = generateRandomPayloads(args.payloadSize, args.payloadSize, args.numTests)
-            savePayloadsToFile(payloads)
-            fuzz.sendPayloads(payloads)
+            elif args.command == 'app-rand-range':
+                payloads = generateRandomPayloads(args.payloadMinSize, args.payloadMaxSize, args.numTests)
+                savePayloadsToFile(payloads)
+                fuzz.sendPayloads(payloads)
+            elif args.command == 'app-file':
+                payloads = readPayloadsFromFile(args.path)
+                savePayloadsToFile(payloads)
+                sendAppPayloads(fuzz,payloads)
 
-        elif args.command == 'app-rand-range':
-            payloads = generateRandomPayloads(args.payloadMinSize, args.payloadMaxSize, args.numTests)
-            savePayloadsToFile(payloads)
-            fuzz.sendPayloads(payloads)
-        elif args.command == 'app-file':
-            payloads = readPayloadsFromFile(args.path)
-            savePayloadsToFile(payloads)
-            sendAppPayloads(fuzz,payloads)
-        elif args.command == 'ip':
-            processIPFuzz(fuzz,args)
-    finally:
-        fuzz.closeConnection()
+        finally:
+            fuzz.closeConnection()
