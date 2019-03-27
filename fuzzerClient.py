@@ -2,6 +2,8 @@ from scapy.layers.inet import * # done purely for IDE automplete to work properl
 from scapy.sendrecv import *
 from scapy.all import *
 from utils import generateRandomInts
+from ipFileReader import IPHeader
+
 
 class Fuzz:
     def __init__(self,destinationIP,destinationPort,defaultMessage,sourceIP=None):
@@ -85,6 +87,8 @@ class Fuzz:
 class IPFuzz:
     def __init__(self,destinationIP,destinationPort,defaultMessage,sourceIP=None):
         self.destinationPort = destinationPort
+        self.destinationIP = destinationIP
+        self.sourceIP = sourceIP
         self.ip = IP(dst=destinationIP, src=sourceIP)
         self.sport = 3002
         self.msg = defaultMessage
@@ -94,9 +98,9 @@ class IPFuzz:
         self.ihlValues = range(16)
         self.dscpValues = range(62)
         self.ecnValues = range(4)
-        self.lengthValues = generateRandomInts(65535,256)
+        self.lengthValues = generateRandomInts(65536,256)
         self.flagsValues = range(8)
-        self.idValues = generateRandomInts(65535,256) # scapy only supports that max
+        self.idValues = generateRandomInts(65536,256) # scapy only supports that max
         self.fragValues = generateRandomInts(8192,256)
         self.protoValues = range(256)
 
@@ -105,6 +109,23 @@ class IPFuzz:
         SYN = TCP(dport=self.destinationPort, sport=self.sport, flags='S')
         print ("Sending SYN")
         send(self.ip/SYN/self.msg)
+
+    def sendPacket(self,parsedPacket):
+        pack = IP(dst=self.destinationIP,
+           src=self.sourceIP,
+           version=parsedPacket.version,
+           ihl=parsedPacket.ihl,
+           tos= (parsedPacket.dscp << 2) + parsedPacket.ecn,
+           id=parsedPacket.id,
+           flags=parsedPacket.flags,
+           frag=parsedPacket.frag,
+           ttl=parsedPacket.ttl,
+           proto=parsedPacket.proto)
+        #pack.len = parsedPacket.len
+        SYN = TCP(dport=self.destinationPort, sport=self.sport, flags='S')
+        print("Sending SYN")
+        finalPacket = pack/SYN/self.msg
+        send(finalPacket)
 
     def fuzzVersion(self):
         for i in self.versionValues:

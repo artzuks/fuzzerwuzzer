@@ -1,6 +1,7 @@
 from inputParser import getParser
 from fuzzerClient import Fuzz, IPFuzz
 from utils import generateRandomPayloads
+from ipFileReader import IPFile
 from scapy.utils import hex_bytes
 
 import time
@@ -44,6 +45,11 @@ def sendAppPayloads(fuzz, payloads):
     print("Application testing done. Valid responses={} ; Invalid responses={} ; Unknown responses={}".format(valid,invalid,other))
 
 
+def processIPFile(fuzz,path):
+    parsedFile = IPFile(path)
+    for packet in parsedFile.packets:
+        fuzz.sendPacket(packet)
+
 def processIPFuzz(fuzz,args):
 
     if args.fttl or args.fall:
@@ -71,20 +77,28 @@ def processIPFuzz(fuzz,args):
 if __name__ == '__main__':
     args = getParser().parse_args()
 
-    with open(args.defaultPayloadPath, "r") as f:
-        defaultPayload = f.read()
+
 
     if args.command == 'ip':
+        with open(args.defaultPayloadPath, "r") as f:
+            defaultPayload = f.read()
         ipfuzz = IPFuzz(destinationIP=args.targetIP,
                         destinationPort=args.targetPort,
                         defaultMessage=defaultPayload,
                         sourceIP=args.sourceIP)
         processIPFuzz(ipfuzz, args)
+    elif args.command == 'ip-file':
+        with open(args.defaultPayloadPath, "r") as f:
+            defaultPayload = f.read()
+        ipfuzz = IPFuzz(destinationIP=args.targetIP,
+                        destinationPort=args.targetPort,
+                        defaultMessage=defaultPayload,
+                        sourceIP=args.sourceIP)
+        processIPFile(ipfuzz, args.path)
     else:
         try:
             fuzz = Fuzz(destinationIP=args.targetIP,
                             destinationPort=args.targetPort,
-                            defaultMessage=defaultPayload,
                             sourceIP=args.sourceIP)
             if args.command == 'app-rand-fixed':
                 payloads = generateRandomPayloads(args.payloadSize, args.payloadSize, args.numTests)

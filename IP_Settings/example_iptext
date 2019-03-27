@@ -1,0 +1,11 @@
+version:4 ihl:10	dscp:1 ecn:0 len:50 id:1 frag:0 ttl:54 proto:6
+version:4 ihl:10	dscp:1 ecn:3 len:50 id:1 flags:0 ttl:54 proto:6
+version:4 ihl:10	dscp:1 ecn:0 len:57 id:1 flags:0 frag:0 ttl:54 proto:6
+version:4 ihl:10	dscp:1 len:50 id:1 flags:0 frag:0 ttl:22 proto:6
+version:4 ihl:10	dscp:1 ecn:0 len:50 id:1 flags:0 frag:0 ttl:54 proto:6
+version:4 ihl:10	dscp:1 ecn:0  id:1 flags:0 frag:0 ttl:54 proto:7
+version:6 ihl:10	dscp:1 ecn:0 len:50 id:1 flags:0 frag:0 ttl:54 proto:6
+version:4 	dscp:2 ecn:0 len:50 id:1 flags:0 frag:0 ttl:54 proto:6
+version:4 ihl:10	dscp:1 ecn:0 len:50 id:1 flags:2 frag:0 ttl:54
+version:4 ihl:10	dscp:1 ecn:0 len:50 id:1 flags:0 frag:6543 proto:6
+

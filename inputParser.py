@@ -39,7 +39,7 @@ def getParser():
 
     parser_app_ip.add_argument('--defaultPayloadPath',
                           help='Path to the payload that will be sent to the server with each request',
-                          default='./IP Settings/default_payload')
+                          default='./IP_Settings/default_payload')
 
     parser_app_ip.add_argument("--fall", help="Will fuzz the all fields in IP header",
                                action="store_true")
@@ -63,6 +63,15 @@ def getParser():
                          action="store_true")
     parser_app_ip.add_argument("--fproto", help="Will fuzz the protocol field in IP header",
                                action="store_true")
+
+    #Parser for file based IP packets
+    parser_app_ip_file = subparsers.add_parser('ip-file', help='Used to fuzz ip given parameters in a file')
+
+    parser_app_ip_file.add_argument('--defaultPayloadPath',
+                               help='Path to the payload that will be sent to the server with each request',
+                               default='./IP_Settings/default_payload')
+
+    parser_app_ip_file.add_argument('path', help='Path to the file that specifies ip packets to send to the server')
 
 
     return parser
