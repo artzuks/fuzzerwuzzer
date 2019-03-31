@@ -1,5 +1,6 @@
 from inputParser import getParser
-from fuzzerClient import Fuzz, IPFuzz
+from appFuzzer import AppFuzzer
+from ipFuzzer import IPFuzzer
 from utils import generateRandomPayloads
 from ipFileReader import IPFile
 from scapy.utils import hex_bytes
@@ -9,7 +10,9 @@ import os
 
 
 
+## App fuzzing
 
+# Reads the payloads for app fuzzing
 def readPayloadsFromFile(path):
     ret = []
     with open(path,'r') as f:
@@ -17,6 +20,7 @@ def readPayloadsFromFile(path):
             ret.append(hex_bytes(line.rstrip()))
     return ret
 
+# Saves random payloads to a file for future use/inspection
 def savePayloadsToFile(payloads):
     path = 'fuzz_tests/' + str(time.time())
     dirname = os.path.dirname(path)
@@ -26,6 +30,7 @@ def savePayloadsToFile(payloads):
         for payload in payloads:
             f.write(payload.hex() + '\n')
 
+# Used for sending app payloads to the server
 def sendAppPayloads(fuzz, payloads):
     fuzz.sendPayloads(payloads)
     validOutput = bytearray.fromhex("00")
@@ -45,11 +50,16 @@ def sendAppPayloads(fuzz, payloads):
     print("Application testing done. Valid responses={} ; Invalid responses={} ; Unknown responses={}".format(valid,invalid,other))
 
 
+
+## IP fuzzing wrappers
+
+# Processing of IP fuzzing based on file
 def processIPFile(fuzz,path):
     parsedFile = IPFile(path)
     for packet in parsedFile.packets:
         fuzz.sendPacket(packet)
 
+# Default IP testing
 def processIPFuzz(fuzz,args):
 
     if args.fttl or args.fall:
@@ -74,44 +84,47 @@ def processIPFuzz(fuzz,args):
         fuzz.fuzzProto()
 
 
+
+# Argument parsing and delegating to the appropriate fuzzer
 if __name__ == '__main__':
 
     args = getParser().parse_args()
 
-    if args.command == 'ip':
+    if args.command == 'ip': # IP default Tests
         with open(args.defaultPayloadPath, "r") as f:
             defaultPayload = f.read()
-        ipfuzz = IPFuzz(destinationIP=args.targetIP,
+        ipfuzz = IPFuzzer(destinationIP=args.targetIP,
                         destinationPort=args.targetPort,
                         defaultMessage=defaultPayload,
                         sourceIP=args.sourceIP)
         processIPFuzz(ipfuzz, args)
-    elif args.command == 'ip-file':
+    elif args.command == 'ip-file': # IP tests from a file
         with open(args.defaultPayloadPath, "r") as f:
             defaultPayload = f.read()
-        ipfuzz = IPFuzz(destinationIP=args.targetIP,
+        ipfuzz = IPFuzzer(destinationIP=args.targetIP,
                         destinationPort=args.targetPort,
                         defaultMessage=defaultPayload,
                         sourceIP=args.sourceIP)
         processIPFile(ipfuzz, args.path)
-    else: # app fuzzing
+    else:
+        # app fuzzing
+        # General flow is to generate payloads, save them to a file, and send them to the server
+        # If file is provided just read file and send to server
         try:
-            fuzz = Fuzz(destinationIP=args.targetIP,
+            fuzz = AppFuzzer(destinationIP=args.targetIP,
                             destinationPort=args.targetPort,
                             sourceIP=args.sourceIP)
-            if args.command == 'app-rand-fixed':
+            if args.command == 'app-rand-fixed': # App all payloads same size
                 payloads = generateRandomPayloads(args.payloadSize, args.payloadSize, args.numTests)
                 savePayloadsToFile(payloads)
                 fuzz.sendPayloads(payloads)
-
-            elif args.command == 'app-rand-range':
+            elif args.command == 'app-rand-range': # App variable payload size
                 payloads = generateRandomPayloads(args.payloadMinSize, args.payloadMaxSize, args.numTests)
                 savePayloadsToFile(payloads)
                 fuzz.sendPayloads(payloads)
-            elif args.command == 'app-file':
+            elif args.command == 'app-file': # App payloads from file
                 payloads = readPayloadsFromFile(args.path)
                 savePayloadsToFile(payloads)
                 sendAppPayloads(fuzz,payloads)
-
         finally:
-            fuzz.closeConnection()
+            fuzz.closeConnection() # Close TCP connection with FIN in case it wasn't closed

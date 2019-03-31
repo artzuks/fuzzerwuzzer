@@ -128,7 +128,7 @@ value will be used. In the example above, since the first line doesn't have an o
  the default value of 54 is used. There is no limit to how many tests can be specified in the file
  but since python has memory limits when opening and reading files, large files might require adjustments
  to the python interpreter memory limits. Please refer to the documentation of the default IP tests
- for valid ranges for individual fields
+ for valid ranges for individual fields. An example file is included in the IP_Settings folder.
  
  Default values:
  ```
@@ -168,7 +168,8 @@ payload to send with each ip packet. When not specified, the default path _./IP_
 You may either change the existing file or use the argument to specify your own path.
 The payload is the ascii representation of the payload to send.
 
-`path` is the path to the file which contains the 
+`path` is the path to the file which contains the user specified test cases in the file format described 
+in the file format section.
 
 
 ## Fuzzing Application Layer
@@ -199,8 +200,19 @@ positional arguments:
 
 Random payload testing is provided by 2 positional arguments `app-rand-fixed` and `app-rand-range`
 to send either fixed size random payloads or a range of sizes respectively. Both require 
-the user to provide the number of random payloads to send and depending on 
+the user to provide the number of random payloads. Depending on if the fixed or the range version of
+the parameter is used, the following also need to be specified
+
+`numTests`
+
+`payloadSize`
+
+`payloadMinSize`
+
+`payloadMaxSize`
 ### Payloads From a File
+
+
 ## Server
 The included server serves as an endpoint for the client to connect to and send packets.
 It uses a higher level socket library that takes care of the TCP connection and is primarily used to read payloads from the socket.
