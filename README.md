@@ -7,6 +7,11 @@ Fuzz testing IP/TCP/App
   * [Configuring OS](#OS)
   * [High Level Usage](#high-level-usage)
 - [Fuzzing IP Layer](#fip)
+  * [Default Tests and Methodology](#ipdefault)
+    - [Usage and Methodology](#ipmethod)
+  * [Tests From a File](#ipfile)
+    - [File Format](#fileformat)
+    - [Usage](#fileusage)
 - [Fuzzing Application Layer](#fapp)
   * [General Commands](#gcomm)
   * [Random Payloads](#randompayloads)
@@ -49,12 +54,123 @@ By default this value is set to 80 unless specified otherwise
 
 The positional arguments are described in the sections below.
 ## Fuzzing IP Layer
-### IP Commands
-### TTL
-The TTL field in practice is used as a counter to prevent packets from getting stuck in a network by being decremented when it is processed by a router in the network.
-The fuzzing for the ttl field starts at the highest value of 255 and decrements until a request is sent out but a response is not returned.
-This signifies that ttl is decremented to 0 prior to arriving at the server.
-At this point the fuzzing test is concluded since a packet with a lower ttl will also not be able to make it through the network.
+### Default Tests and Methology
+
+When sending a packet to fuzz the ip layer, regardless of the protocol field the payload will contain
+valid TCP payload as well as a default data payload. A single packet is sent to the destination server
+containing a TCP SYN packet. The fuzzer does not wait for a response from the server.
+```
+sudo python main.py --targetPort <port> <ip> ip -h
+usage: FuzzerWuzzer targetIP ip [-h] [--defaultPayloadPath DEFAULTPAYLOADPATH]
+                                [--fall] [--fversion] [--fihl] [--fdscp]
+                                [--fecn] [--flen] [--fid] [--fflags] [--ffrag]
+                                [--fttl] [--fproto]
+
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --defaultPayloadPath  DEFAULTPAYLOADPATH
+                        Path to the payload that will be sent to the server
+                        with each request
+  --fall                Will fuzz the all fields in IP header
+  --fversion            Will fuzz the version field in IP header
+  --fihl                Will fuzz the IHL field in IP header
+  --fdscp               Will fuzz the DSCP field in IP header
+  --fecn                Will fuzz the ECN field in IP header
+  --flen                Will fuzz the Length field in IP header
+  --fid                 Will fuzz the ID field in IP header
+  --fflags              Will fuzz the Flags flags in IP header
+  --ffrag               Will fuzz the Fragment offset field in IP header
+  --fttl                Will fuzz the TTL field in IP header
+  --fproto              Will fuzz the protocol field in IP header
+
+```
+#### Methodology
+`--defaultPayloadPath` specifies the relative or absolute path to the file that contains a
+payload to send with each ip packet. When not specified, the default path _./IP_Settings/default_payload_ is used.
+You may either change the existing file or use the argument to specify your own path.
+The payload is the ascii representation of the payload to send.
+
+`--fall` runs all tests and fuzzes all of the ip layer fields one by one.
+
+`--fversion`  16 packets are sent for each of the possible inputs 0-15 for the version header field
+
+`--fihl`  16 packets are sent for each of the possible inputs 0-15 for the IHL header field
+
+`--fdscp` 64 packets are sent for each of the  possible inputs 0-63 for the dscp header field
+
+`--fecn` 4 packets are sent for each of the possible inputs 0-3 for the ecn header field
+
+`--flen` 256 packets are sent by randomly selecting values from the range 0-65535 for the len field
+
+`--fid` 256 packets are sent by randomly selecting values from the range 0-65535 for the id field
+
+`--fflags` 8 packets are sent for each of the possible inputs 0-7 for the flags field
+
+`--ffrag` 256 packets are sent by randomly selecting values from the range 0-8191 for the fragment offset field
+
+`--fttl` 256 packets are sent for each of the possible inputs 0-255 for the ttl field
+
+`--fproto` 256 packets are sent for each of the possible inputs 0-255 for the protocol field
+
+### Tests From a File
+#### File Format
+Example:
+```
+version:4 ihl:10 dscp:1 ecn:0 len:50 id:1 flags:0 frag:6543 proto:6
+version:4 ihl:10 dscp:1 ecn:0 len:50 id:1 flags:2 frag:0 ttl:30
+```
+
+The test file consists of one test per line. Each line is parsed individually and each parameter
+is validated. If a specific line contains a parameter that is not valid, that parameter is ignored 
+and a default value is used instead. Any parameters that are not specified, the default value for that 
+value will be used. In the example above, since the first line doesn't have an override for ttl,
+ the default value of 54 is used. There is no limit to how many tests can be specified in the file
+ but since python has memory limits when opening and reading files, large files might require adjustments
+ to the python interpreter memory limits. Please refer to the documentation of the default IP tests
+ for valid ranges for individual fields
+ 
+ Default values:
+ ```
+version = 4
+ihl = 0
+dscp = 1
+ecn = 0
+len = 50
+id = 1
+flags = 0
+frag = 0
+ttl = 54
+proto = 6
+ ```
+
+#### Usage
+```
+sudo python main.py --targetPort <port> <ip> ip-file -h
+usage: FuzzerWuzzer targetIP ip-file [-h]
+                                     [--defaultPayloadPath DEFAULTPAYLOADPATH]
+                                     path
+
+positional arguments:
+  path                  Path to the file that specifies ip packets to send to
+                        the server
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --defaultPayloadPath DEFAULTPAYLOADPATH
+                        Path to the payload that will be sent to the server
+                        with each request
+
+```
+
+`--defaultPayloadPath` specifies the relative or absolute path to the file that contains a
+payload to send with each ip packet. When not specified, the default path _./IP_Settings/default_payload_ is used.
+You may either change the existing file or use the argument to specify your own path.
+The payload is the ascii representation of the payload to send.
+
+`path` is the path to the file which contains the 
+
+
 ## Fuzzing Application Layer
 Application layer fuzzing is done by first establishing a TCP connection with the target server,
 and then sending payloads to the server and observing the responses. The fuzzer expects to receive

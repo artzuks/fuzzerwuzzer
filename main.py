@@ -75,9 +75,8 @@ def processIPFuzz(fuzz,args):
 
 
 if __name__ == '__main__':
+
     args = getParser().parse_args()
-
-
 
     if args.command == 'ip':
         with open(args.defaultPayloadPath, "r") as f:
@@ -95,7 +94,7 @@ if __name__ == '__main__':
                         defaultMessage=defaultPayload,
                         sourceIP=args.sourceIP)
         processIPFile(ipfuzz, args.path)
-    else:
+    else: # app fuzzing
         try:
             fuzz = Fuzz(destinationIP=args.targetIP,
                             destinationPort=args.targetPort,

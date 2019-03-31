@@ -48,7 +48,7 @@ class IPFile():
                         if paramValue >= 0 and paramValue <= 63:
                             ipHeader.dscp = paramValue
                         else:
-                            print('Value of ihl needs to be between 0 and 63')
+                            print('Value of dscp needs to be between 0 and 63')
                     elif paramName == 'ecn':
                         if paramValue >= 0 and paramValue <= 3:
                             ipHeader.ecn = paramValue
