@@ -1,5 +1,7 @@
 import argparse
 
+
+# Returns the parser that is used for parsing command line input
 def getParser():
 
     parser = argparse.ArgumentParser(

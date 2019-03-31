@@ -15,9 +15,16 @@ import os
 # Reads the payloads for app fuzzing
 def readPayloadsFromFile(path):
     ret = []
-    with open(path,'r') as f:
-        for line in f:
-            ret.append(hex_bytes(line.rstrip()))
+    try:
+        with open(path,'r') as f:
+            for line in f:
+                try:
+                    ret.append(hex_bytes(line.rstrip()))
+                except Exception as e:
+                    print('Issue with the payload {}. Erorr: {}'.format(line,e))
+    except Exception as e:
+        print ('\nError opening file {}. Error: {}'.format(path,e))
+        exit(1)
     return ret
 
 # Saves random payloads to a file for future use/inspection

@@ -2,11 +2,17 @@ from scapy.layers.inet import * # done purely for IDE autocomplete to work prope
 from scapy.all import *
 from utils import generateRandomInts
 
+# Class for fuzzing the IP layer
+# includes functions for each field and generates random inputs when the class is initialized
+# All requests are sent wthout waiting for a response and contain a SYN TCP packet
+# Since scapy uses a tos field instead of ihl and dscp bit shift is required to fuzz the fields
+#
 class IPFuzzer:
     def __init__(self,destinationIP,destinationPort,defaultMessage,sourceIP=None):
         self.destinationPort = destinationPort
         self.destinationIP = destinationIP
         self.sourceIP = sourceIP
+        self.numRandomTests = 256
         self.ip = IP(dst=destinationIP, src=sourceIP)
         self.sport = 3002
         self.msg = defaultMessage
@@ -16,18 +22,19 @@ class IPFuzzer:
         self.ihlValues = range(16)
         self.dscpValues = range(62)
         self.ecnValues = range(4)
-        self.lengthValues = generateRandomInts(65536,256)
+        self.lengthValues = generateRandomInts(65536,self.numRandomTests)
         self.flagsValues = range(8)
-        self.idValues = generateRandomInts(65536,256) # scapy only supports that max
-        self.fragValues = generateRandomInts(8192,256)
+        self.idValues = generateRandomInts(65536,self.numRandomTests) # scapy only supports that max unlike the standard
+        self.fragValues = generateRandomInts(8192,self.numRandomTests)
         self.protoValues = range(256)
 
-
+    #sends SYN - doesnt wait for response
     def trySyn(self):
         SYN = TCP(dport=self.destinationPort, sport=self.sport, flags='S')
         print ("Sending SYN")
         send(self.ip/SYN/self.msg)
 
+    #used for user specified file input to manually construct the IP packet
     def sendPacket(self,parsedPacket):
         pack = IP(dst=self.destinationIP,
            src=self.sourceIP,
