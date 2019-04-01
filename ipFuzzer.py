@@ -20,7 +20,7 @@ class IPFuzzer:
         self.ttlValues = range(256)
         self.versionValues = range(16)
         self.ihlValues = range(16)
-        self.dscpValues = range(62)
+        self.dscpValues = range(64)
         self.ecnValues = range(4)
         self.lengthValues = generateRandomInts(65536,self.numRandomTests)
         self.flagsValues = range(8)
@@ -55,7 +55,7 @@ class IPFuzzer:
     def fuzzVersion(self):
         for i in self.versionValues:
             self.ip.version = i
-            print("Sending version=", i)
+            print("\nSending version=", i)
             self.trySyn()
         self.ip.version = 4
 
@@ -63,7 +63,7 @@ class IPFuzzer:
         originalIHL = self.ip.ihl
         for i in self.ihlValues:
             self.ip.ihl = i
-            print("Sending ihl=", i)
+            print("\nSending ihl=", i)
             self.trySyn()
         self.ip.ihl = originalIHL
 
@@ -71,7 +71,7 @@ class IPFuzzer:
         originalDSCP = self.ip.tos
         for i in self.dscpValues:
             self.ip.tos = i << 2
-            print("Sending dscp=", i)
+            print("\nSending dscp=", i)
             self.trySyn()
         self.ip.tos = originalDSCP
 
@@ -79,7 +79,7 @@ class IPFuzzer:
         originalDSCP = self.ip.tos
         for i in self.ecnValues:
             self.ip.tos = i
-            print("Sending ecn=", i)
+            print("\nSending ecn=", i)
             self.trySyn()
         self.ip.tos = originalDSCP
 
@@ -87,7 +87,7 @@ class IPFuzzer:
         originalLen = self.ip.len
         for i in self.lengthValues:
             self.ip.len = i
-            print("Sending length=", i)
+            print("\nSending length=", i)
             self.trySyn()
         self.ip.len = originalLen
 
@@ -95,7 +95,7 @@ class IPFuzzer:
         originalID = self.ip.id
         for i in self.idValues:
             self.ip.id = i
-            print("Sending id=", i)
+            print("\nSending id=", i)
             self.trySyn()
         self.ip.id = originalID
 
@@ -103,7 +103,7 @@ class IPFuzzer:
         originalflag = self.ip.flags
         for i in self.flagsValues:
             self.ip.flags = i
-            print("Sending flag=", i)
+            print("\nSending flag=", i)
             self.trySyn()
         self.ip.flags = originalflag
 
@@ -111,7 +111,7 @@ class IPFuzzer:
         originalfrag = self.ip.frag
         for i in self.fragValues:
             self.ip.frag = i
-            print("Sending frag=", i)
+            print("\nSending frag=", i)
             self.trySyn()
         self.ip.frag = originalfrag
 
@@ -119,7 +119,7 @@ class IPFuzzer:
         originalTTL = self.ip.ttl
         for i in self.ttlValues:
             self.ip.ttl = i
-            print("Sending ttl=",i)
+            print("\nSending ttl=",i)
             self.trySyn()
         self.ip.ttl = originalTTL
 
@@ -127,6 +127,6 @@ class IPFuzzer:
         originalproto = self.ip.proto
         for i in self.protoValues:
             self.ip.proto = i
-            print("Sending proto=", i)
+            print("\nSending proto=", i)
             self.trySyn()
         self.ip.proto = originalproto

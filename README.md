@@ -26,13 +26,18 @@ All testings and developing was done on Ubuntu 18.04 so the code is not guarante
 to run on other environments. All testing was done with Python 3.6.7 and lower version have not 
 been tested.  
 
-Since scapy functions not within the kernel, for it to be able to establish TCP connections we must disable the kernel from sending RST packets.
-To do this, we can modify iptables to drop RST packets.
+Since scapy functions not within the kernel, for it to be able to establish TCP connections we must disable the kernel 
+from sending RST packets. To do this, we can modify iptables to drop RST packets.
 
 ```shell
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 iptables -L
 ```
+
+### Prerequisites
+
+The recommended version of python is 3.6.7+. The only library that is needed that is not provided with py
+
 ### High Level Usage
 ```
 sudo python3 main.py [--sourceIP SOURCEIP] [--targetPort TARGETPORT]
