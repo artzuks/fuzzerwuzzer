@@ -36,7 +36,12 @@ iptables -L
 
 ### Prerequisites
 
-The recommended version of python is 3.6.7+. The only library that is needed that is not provided with py
+The recommended version of python is 3.6.7+. The only library that is needed that is not provided with python is scapy. That being said you should install all of the necessary prerequisites for scapy.
+```
+sudo apt-get install tcpdump graphviz imagemagick python-matplotlib python-cryptography python-pyx python3-pip python3-scapy
+sudo pip3 install -r requirements.txt
+
+```
 
 ### High Level Usage
 ```
