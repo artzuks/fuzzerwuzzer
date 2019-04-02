@@ -20,8 +20,8 @@ Fuzz testing IP/TCP/App
   * [Validation of Pattern](#validationpattern)
 - [About](#about)
 
-## Setup
-### Prerequisites
+## Setup <a name="setup" />
+### Prerequisites <a name="prereq" />
 | Tool        | Description                                                     |
 | ----------- | -----------                                                     |
 | Python3     | https://www.python.org/downloads/                               |
@@ -35,7 +35,7 @@ sudo pip3 install -r requirements.txt
 
 ```
 
-### Configuring OS
+### Configuring OS <a name="os" />
 All testings and developing was done on Ubuntu 18.04 so the code is not guaranteed
 to run on other environments. All testing was done with Python 3.6.7 and lower version have not 
 been tested.  
@@ -50,7 +50,7 @@ iptables -L
 
 Note: You will have to modify the iptables every time you restart your OS unless you save your changes permentantly. I would not recommend dropping all RST packets when the fuzzer is not running.
 
-### High Level Usage
+### High Level Usage <a name="high-level-usage" />
 ```
 sudo python3 main.py [--sourceIP SOURCEIP] [--targetPort TARGETPORT]
                     [--defaultPayloadPath DEFAULTPAYLOADPATH]
