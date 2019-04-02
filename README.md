@@ -4,16 +4,16 @@ Fuzz testing IP/TCP/App
 ## Table of Contents
 
 - [Setup](#setup)
+  * [Prerequisites](#prereq)
   * [Configuring OS](#OS)
   * [High Level Usage](#high-level-usage)
 - [Fuzzing IP Layer](#fip)
   * [Default Tests and Methodology](#ipdefault)
-    - [Usage and Methodology](#ipmethod)
+    - [Methodology](#ipmethod)
   * [Tests From a File](#ipfile)
     - [File Format](#fileformat)
     - [Usage](#fileusage)
 - [Fuzzing Application Layer](#fapp)
-  * [General Commands](#gcomm)
   * [Random Payloads](#randompayloads)
   * [Payloads From a File](#payloadsfromafile)
 - [Included Server](#server)
@@ -72,7 +72,7 @@ the fuzzer will use the IP of the machine that it is running on.
 The positional arguments are described in the sections below.
 
 ## Fuzzing IP Layer
-### Default Tests and Methology
+### Default Tests and Methodology
 
 When sending a packet to fuzz the ip layer, regardless of the protocol field the payload will contain
 valid TCP payload as well as a default data payload. A single packet is sent to the destination server
@@ -264,7 +264,7 @@ e52453f381e792
 
 
 
-## Server
+## Included Server
 The included server serves as an endpoint for the client to connect to and send packets.
 It uses a higher level socket library that takes care of the TCP connection and is primarily used to read payloads from the socket.
 The maximum number of bytes that the server will read from the pipe 1024 so any payload larger than this will not be parsed correctly for matching.
