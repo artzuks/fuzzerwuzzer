@@ -47,6 +47,9 @@ from sending RST packets. To do this, we can modify iptables to drop RST packets
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 iptables -L
 ```
+
+Note: You will have to modify the iptables every time you restart your OS unless you save your changes permentantly. I would not recommend dropping all RST packets when the fuzzer is not running.
+
 ### High Level Usage
 ```
 sudo python3 main.py [--sourceIP SOURCEIP] [--targetPort TARGETPORT]
@@ -58,15 +61,16 @@ that are used to fuzz the IP and application layers. Note that you must run the 
 sudo since the underlying scapy library needs root access to manipulate and send packets on the 
 network without relying on the kernel to construct packets.
 
-`--sourceIP` argument is optional and by default 
-the fuzzer will use the IP of the machine that it is running on. 
-
 `--targetPort` is an optional argument to specify the port of the server you are fuzzing. 
 By default this value is set to 80 unless specified otherwise
 
 `targetIP` is a required argument of the target server that will be fuzzed.
 
+`--sourceIP` argument is optional and by default 
+the fuzzer will use the IP of the machine that it is running on. 
+
 The positional arguments are described in the sections below.
+
 ## Fuzzing IP Layer
 ### Default Tests and Methology
 
@@ -272,4 +276,3 @@ A payload is considered valid if the initial bytes of the payload are the same a
 Note that the payload must match the entire pattern, if the payload is shorter than the pattern it is considered invalid.
 
 The server keeps count of the number of valid and invalid payloads and will print out the accumulate counts when the server is terminated.
-## About
