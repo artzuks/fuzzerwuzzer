@@ -35,8 +35,12 @@ def checkPayloadForPattern(b,matchPattern):
     return True
      
 
+try:
+    patternToMatch = readMatchPatternFromFile('./match_pattern')
+except Exception as e:
+    print('Error opening pattern file: {}'.format(e))
+    exit(1)
 
-patternToMatch = readMatchPatternFromFile('./match_pattern')
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
