@@ -21,6 +21,20 @@ Fuzz testing IP/TCP/App
 - [About](#about)
 
 ## Setup
+### Prerequisites
+| Tool        | Description                                                     |
+| ----------- | -----------                                                     |
+| Python3     | https://www.python.org/downloads/                               |
+| Scapy       | https://scapy.readthedocs.io/en/latest/installation.html        |
+
+The recommended version of python is 3.6.7+. The only library that is needed that is not provided with python is scapy. That being said you should install all of the necessary prerequisites for scapy.
+
+```
+sudo apt-get install tcpdump graphviz imagemagick python-matplotlib python-cryptography python-pyx python3-pip python3-scapy
+sudo pip3 install -r requirements.txt
+
+```
+
 ### Configuring OS
 All testings and developing was done on Ubuntu 18.04 so the code is not guaranteed
 to run on other environments. All testing was done with Python 3.6.7 and lower version have not 
@@ -33,16 +47,6 @@ from sending RST packets. To do this, we can modify iptables to drop RST packets
 sudo iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
 iptables -L
 ```
-
-### Prerequisites
-
-The recommended version of python is 3.6.7+. The only library that is needed that is not provided with python is scapy. That being said you should install all of the necessary prerequisites for scapy.
-```
-sudo apt-get install tcpdump graphviz imagemagick python-matplotlib python-cryptography python-pyx python3-pip python3-scapy
-sudo pip3 install -r requirements.txt
-
-```
-
 ### High Level Usage
 ```
 sudo python3 main.py [--sourceIP SOURCEIP] [--targetPort TARGETPORT]
