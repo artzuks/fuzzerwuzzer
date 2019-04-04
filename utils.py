@@ -1,4 +1,4 @@
-from scapy.utils import hex_bytes
+from scapy.all import *
 import secrets
 
 # Generates a list of random payloads given a min,max size of radnom values
