@@ -3,7 +3,7 @@ from appFuzzer import AppFuzzer
 from ipFuzzer import IPFuzzer
 from utils import generateRandomPayloads
 from ipFileReader import IPFile
-from scapy.utils import hex_bytes
+from scapy.all import *
 
 import time
 import os
